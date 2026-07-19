@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libgbm1 \
     libgl1 \
     libpulse0 \
-    # sudo for optional x11docker --sudouser
+    # sudo only for optional x11docker --sudouser (not required for normal use)
     sudo \
     xauth \
     xclip \
@@ -32,8 +32,8 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 COPY run-chromium.sh /usr/local/bin/run-chromium.sh
-RUN chmod +x /usr/local/bin/run-chromium.sh
+RUN chmod 0755 /usr/local/bin/run-chromium.sh
 
 # Do not set USER: x11docker creates a host-like unprivileged user.
-
-CMD ["/usr/local/bin/run-chromium.sh"]
+# ENTRYPOINT so extra args (URLs, flags) are passed to Chromium, not replace CMD.
+ENTRYPOINT ["/usr/local/bin/run-chromium.sh"]

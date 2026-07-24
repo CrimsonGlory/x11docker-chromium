@@ -103,7 +103,7 @@ x11docker --backend=podman --network --clipboard=c2h --limit --home \
 
 1. **x11docker isolation** — nested X server, unprivileged host-mapped user, `--cap-drop=ALL`, `--security-opt=no-new-privileges`.
 2. **Custom seccomp** (`seccomp/chromium.json`) — Docker’s default seccomp blocks the `clone`/`unshare` patterns Chromium needs for its **namespace sandbox**. This profile is the moby default adjusted to allow only those sandbox syscalls **without** granting `CAP_SYS_ADMIN`. That is the same idea as Jess Frazelle’s classic `chrome.json`, kept current against a modern default profile.
-3. **Chromium flags** — disable only the unusable setuid helper under `no-new-privileges`; leave the namespace sandbox on. Set `CHROMIUM_NO_SANDBOX=1` only if the host lacks unprivileged user namespaces or seccomp cannot be applied.
+3. **Chromium flags** — leave the namespace sandbox on; do **not** pass `--disable-setuid-sandbox` (that only triggers Chromium’s “unsupported flag” infobar and is unnecessary when seccomp allows the namespace sandbox). Under x11docker’s `no-new-privileges`, the setuid helper cannot elevate even if `chromium-sandbox` is installed. Set `CHROMIUM_NO_SANDBOX=1` only if the host lacks unprivileged user namespaces or seccomp cannot be applied.
 4. **Resource limits** — `--limit` (CPU/RAM), `--pids-limit=512`, large `--shm-size` so the browser does not need reckless workarounds.
 5. **Clipboard** — default `c2h` (container → host only) in the launcher.
 6. **Optional read-only rootfs** — `READ_ONLY=1` adds `--read-only` plus `noexec` tmpfs mounts (pair with `--home`).

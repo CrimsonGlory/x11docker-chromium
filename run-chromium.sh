@@ -22,13 +22,17 @@ mkdir -p "$USER_DATA_DIR" "$HOME/Downloads" \
 
 # Sandbox policy
 # ----------------
-# Prefer Chromium's *namespace* sandbox over --no-sandbox.
-# x11docker sets --cap-drop=ALL and --security-opt=no-new-privileges, so the
-# setuid helper cannot work; disable only that helper. Namespace sandbox still
-# needs:
+# Prefer Chromium's *namespace* sandbox (not --no-sandbox).
+# Needs:
 #   1) unprivileged user namespaces on the host
-#   2) a seccomp profile that allows clone/unshare/setns/chroot without
-#      CAP_SYS_ADMIN (see seccomp/chromium.json and run-x11docker.sh)
+#   2) seccomp that allows clone/unshare/setns/chroot without CAP_SYS_ADMIN
+#      (seccomp/chromium.json via run-x11docker.sh)
+#
+# Do NOT pass --disable-setuid-sandbox in the normal path: it is unnecessary
+# when the namespace sandbox works, and Chromium shows a yellow infobar
+# ("unsupported command-line flag: --disable-setuid-sandbox"). Under x11docker
+# (cap-drop=ALL, no-new-privileges) the setuid helper cannot elevate anyway;
+# if chrome-sandbox is missing or inert, Chromium uses the namespace sandbox.
 #
 # Set CHROMIUM_NO_SANDBOX=1 only as a last resort (container is then the sole
 # sandbox — same as many stock "docker chromium" recipes, and weaker).
@@ -36,9 +40,6 @@ SANDBOX_FLAGS=()
 if [ "${CHROMIUM_NO_SANDBOX:-0}" = "1" ]; then
   echo "WARNING: CHROMIUM_NO_SANDBOX=1 — Chromium process sandbox disabled" >&2
   SANDBOX_FLAGS+=(--no-sandbox --disable-setuid-sandbox)
-else
-  # setuid helper is unusable under no-new-privileges; keep namespace sandbox
-  SANDBOX_FLAGS+=(--disable-setuid-sandbox)
 fi
 
 # --disable-dev-shm-usage: avoid crashes when /dev/shm is the default 64MiB.

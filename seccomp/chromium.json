@@ -57,22 +57,20 @@
   "syscalls": [
     {
       "names": [
+        "_llseek",
+        "_newselect",
         "accept",
         "accept4",
         "access",
-        "adjtimex",
         "alarm",
         "bind",
         "brk",
-        "cachestat",
         "capget",
         "capset",
         "chdir",
         "chmod",
         "chown",
         "chown32",
-        "clock_adjtime",
-        "clock_adjtime64",
         "clock_getres",
         "clock_getres_time64",
         "clock_gettime",
@@ -90,11 +88,8 @@
         "epoll_create",
         "epoll_create1",
         "epoll_ctl",
-        "epoll_ctl_old",
         "epoll_pwait",
-        "epoll_pwait2",
         "epoll_wait",
-        "epoll_wait_old",
         "eventfd",
         "eventfd2",
         "execve",
@@ -106,23 +101,16 @@
         "fadvise64",
         "fadvise64_64",
         "fallocate",
-        "fanotify_mark",
         "fchdir",
         "fchmod",
         "fchmodat",
-        "fchmodat2",
         "fchown",
         "fchown32",
         "fchownat",
         "fcntl",
         "fcntl64",
         "fdatasync",
-        "fgetxattr",
-        "flistxattr",
         "flock",
-        "fork",
-        "fremovexattr",
-        "fsetxattr",
         "fstat",
         "fstat64",
         "fstatat64",
@@ -132,12 +120,10 @@
         "ftruncate",
         "ftruncate64",
         "futex",
-        "futex_requeue",
         "futex_time64",
-        "futex_wait",
-        "futex_waitv",
-        "futex_wake",
-        "futimesat",
+        "get_mempolicy",
+        "get_robust_list",
+        "get_thread_area",
         "getcpu",
         "getcwd",
         "getdents",
@@ -163,91 +149,54 @@
         "getresuid",
         "getresuid32",
         "getrlimit",
-        "get_robust_list",
         "getrusage",
         "getsid",
         "getsockname",
         "getsockopt",
-        "get_thread_area",
         "gettid",
         "gettimeofday",
         "getuid",
         "getuid32",
-        "getxattr",
-        "getxattrat",
         "inotify_add_watch",
         "inotify_init",
         "inotify_init1",
         "inotify_rm_watch",
-        "io_cancel",
         "ioctl",
-        "io_destroy",
-        "io_getevents",
-        "io_pgetevents",
-        "io_pgetevents_time64",
-        "ioprio_get",
-        "ioprio_set",
-        "io_setup",
-        "io_submit",
         "ipc",
+        "kcmp",
         "kill",
         "landlock_add_rule",
         "landlock_create_ruleset",
         "landlock_restrict_self",
         "lchown",
         "lchown32",
-        "lgetxattr",
         "link",
         "linkat",
         "listen",
-        "listmount",
-        "listxattr",
-        "listxattrat",
-        "llistxattr",
-        "_llseek",
-        "lremovexattr",
         "lseek",
-        "lsetxattr",
         "lstat",
         "lstat64",
         "madvise",
-        "map_shadow_stack",
         "membarrier",
         "memfd_create",
-        "memfd_secret",
         "mincore",
         "mkdir",
         "mkdirat",
         "mknod",
         "mknodat",
         "mlock",
-        "mlock2",
         "mlockall",
         "mmap",
         "mmap2",
         "mprotect",
-        "mq_getsetattr",
-        "mq_notify",
-        "mq_open",
-        "mq_timedreceive",
-        "mq_timedreceive_time64",
-        "mq_timedsend",
-        "mq_timedsend_time64",
-        "mq_unlink",
         "mremap",
         "mseal",
-        "msgctl",
-        "msgget",
-        "msgrcv",
-        "msgsnd",
         "msync",
         "munlock",
         "munlockall",
         "munmap",
-        "name_to_handle_at",
         "nanosleep",
         "newfstatat",
-        "_newselect",
         "open",
         "openat",
         "openat2",
@@ -265,16 +214,12 @@
         "prctl",
         "pread64",
         "preadv",
-        "preadv2",
         "prlimit64",
-        "process_mrelease",
         "pselect6",
         "pselect6_time64",
         "pwrite64",
         "pwritev",
-        "pwritev2",
         "read",
-        "readahead",
         "readlink",
         "readlinkat",
         "readv",
@@ -283,9 +228,6 @@
         "recvmmsg",
         "recvmmsg_time64",
         "recvmsg",
-        "remap_file_pages",
-        "removexattr",
-        "removexattrat",
         "rename",
         "renameat",
         "renameat2",
@@ -296,22 +238,17 @@
         "rt_sigaction",
         "rt_sigpending",
         "rt_sigprocmask",
-        "rt_sigqueueinfo",
         "rt_sigreturn",
         "rt_sigsuspend",
         "rt_sigtimedwait",
         "rt_sigtimedwait_time64",
         "rt_tgsigqueueinfo",
-        "sched_getaffinity",
-        "sched_getattr",
-        "sched_getparam",
         "sched_get_priority_max",
         "sched_get_priority_min",
+        "sched_getaffinity",
+        "sched_getparam",
         "sched_getscheduler",
-        "sched_rr_get_interval",
-        "sched_rr_get_interval_time64",
         "sched_setaffinity",
-        "sched_setattr",
         "sched_setparam",
         "sched_setscheduler",
         "sched_yield",
@@ -328,6 +265,9 @@
         "sendmmsg",
         "sendmsg",
         "sendto",
+        "set_robust_list",
+        "set_thread_area",
+        "set_tid_address",
         "setfsgid",
         "setfsgid32",
         "setfsuid",
@@ -348,23 +288,16 @@
         "setreuid",
         "setreuid32",
         "setrlimit",
-        "set_robust_list",
         "setsid",
         "setsockopt",
-        "set_thread_area",
-        "set_tid_address",
         "setuid",
         "setuid32",
-        "setxattr",
-        "setxattrat",
         "shmat",
         "shmctl",
         "shmdt",
         "shmget",
         "shutdown",
         "sigaltstack",
-        "signalfd",
-        "signalfd4",
         "sigprocmask",
         "sigreturn",
         "socketcall",
@@ -374,7 +307,6 @@
         "stat64",
         "statfs",
         "statfs64",
-        "statmount",
         "statx",
         "symlink",
         "symlinkat",
@@ -406,12 +338,10 @@
         "uname",
         "unlink",
         "unlinkat",
-        "uretprobe",
         "utime",
         "utimensat",
         "utimensat_time64",
         "utimes",
-        "vfork",
         "vmsplice",
         "wait4",
         "waitid",
@@ -442,71 +372,6 @@
           "index": 0,
           "value": 40,
           "op": "SCMP_CMP_NE"
-        }
-      ]
-    },
-    {
-      "names": [
-        "personality"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 0,
-          "value": 0,
-          "op": "SCMP_CMP_EQ"
-        }
-      ]
-    },
-    {
-      "names": [
-        "personality"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 0,
-          "value": 8,
-          "op": "SCMP_CMP_EQ"
-        }
-      ]
-    },
-    {
-      "names": [
-        "personality"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 0,
-          "value": 131072,
-          "op": "SCMP_CMP_EQ"
-        }
-      ]
-    },
-    {
-      "names": [
-        "personality"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 0,
-          "value": 131080,
-          "op": "SCMP_CMP_EQ"
-        }
-      ]
-    },
-    {
-      "names": [
-        "personality"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "args": [
-        {
-          "index": 0,
-          "value": 4294967295,
-          "op": "SCMP_CMP_EQ"
         }
       ]
     },
@@ -553,19 +418,6 @@
     },
     {
       "names": [
-        "modify_ldt"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "arches": [
-          "amd64",
-          "x32",
-          "x86"
-        ]
-      }
-    },
-    {
-      "names": [
         "s390_pci_mmio_read",
         "s390_pci_mmio_write",
         "s390_runtime_instr"
@@ -591,87 +443,6 @@
     },
     {
       "names": [
-        "open_by_handle_at"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_DAC_READ_SEARCH"
-        ]
-      }
-    },
-    {
-      "names": [
-        "bpf",
-        "fanotify_init",
-        "fsconfig",
-        "fsmount",
-        "fsopen",
-        "fspick",
-        "lookup_dcookie",
-        "lsm_get_self_attr",
-        "lsm_list_modules",
-        "lsm_set_self_attr",
-        "mount",
-        "mount_setattr",
-        "move_mount",
-        "open_tree",
-        "perf_event_open",
-        "quotactl",
-        "quotactl_fd",
-        "setdomainname",
-        "sethostname",
-        "syslog",
-        "umount",
-        "umount2"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_ADMIN"
-        ]
-      }
-    },
-    {
-      "names": [
-        "reboot"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_BOOT"
-        ]
-      }
-    },
-    {
-      "names": [
-        "delete_module",
-        "init_module",
-        "finit_module"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_MODULE"
-        ]
-      }
-    },
-    {
-      "names": [
-        "acct"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_PACCT"
-        ]
-      }
-    },
-    {
-      "names": [
-        "kcmp",
-        "pidfd_getfd",
-        "process_madvise",
         "process_vm_readv",
         "process_vm_writev",
         "ptrace"
@@ -685,99 +456,14 @@
     },
     {
       "names": [
-        "iopl",
-        "ioperm"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_RAWIO"
-        ]
-      }
-    },
-    {
-      "names": [
-        "settimeofday",
-        "stime",
-        "clock_settime",
-        "clock_settime64"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_TIME"
-        ]
-      }
-    },
-    {
-      "names": [
-        "vhangup"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_TTY_CONFIG"
-        ]
-      }
-    },
-    {
-      "names": [
-        "get_mempolicy",
-        "mbind",
-        "set_mempolicy",
-        "set_mempolicy_home_node"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYS_NICE"
-        ]
-      }
-    },
-    {
-      "names": [
-        "syslog"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_SYSLOG"
-        ]
-      }
-    },
-    {
-      "names": [
-        "bpf"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_BPF"
-        ]
-      }
-    },
-    {
-      "names": [
-        "perf_event_open"
-      ],
-      "action": "SCMP_ACT_ALLOW",
-      "includes": {
-        "caps": [
-          "CAP_PERFMON"
-        ]
-      }
-    },
-    {
-      "names": [
         "chroot",
         "clone",
         "clone3",
-        "setns",
         "unshare"
       ],
       "action": "SCMP_ACT_ALLOW",
-      "comment": "Chromium namespace sandbox (user/pid/mount ns) without CAP_SYS_ADMIN"
+      "comment": "Chromium namespace sandbox (user/pid/net ns via unshare/clone/chroot) without CAP_SYS_ADMIN"
     }
   ],
-  "comment": "Docker/moby default seccomp profile adjusted for Chromium's namespace sandbox: allows clone/clone3/unshare/setns/chroot without CAP_SYS_ADMIN. Inspired by Jess Frazelle chrome.json + Code & Coffee article; based on moby/profiles seccomp/v0.1.0 default.json. Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
+  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows only syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases of those calls. Also allows clone/clone3/unshare/chroot for Chromium's namespace sandbox without CAP_SYS_ADMIN. Removed used?=false syscalls (fork/vfork, mount/umount, bpf, modules, mq, aio, xattr, etc.). Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
 }

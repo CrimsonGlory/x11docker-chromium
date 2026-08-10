@@ -102,7 +102,7 @@ x11docker --backend=podman --network --clipboard=c2h --limit --home \
 ### What we do instead
 
 1. **x11docker isolation** — nested X server, unprivileged host-mapped user, `--cap-drop=ALL`, `--security-opt=no-new-privileges`.
-2. **Custom seccomp** (`seccomp/chromium.json`) — Docker’s default seccomp blocks the `clone`/`unshare` patterns Chromium needs for its **namespace sandbox**. This profile is the moby default adjusted to allow only those sandbox syscalls **without** granting `CAP_SYS_ADMIN`. That is the same idea as Jess Frazelle’s classic `chrome.json`, kept current against a modern default profile.
+2. **Custom seccomp** (`seccomp/chromium.json`) — Docker’s default seccomp blocks the `clone`/`unshare` patterns Chromium needs for its **namespace sandbox**. This profile starts from the moby default, allows those sandbox syscalls **without** granting `CAP_SYS_ADMIN`, and is further trimmed so only syscalls justified by `linux_x86_64_syscalls_chromium_used.md` (`used?=true`) remain allowed (plus multi-arch/compat aliases). That is the same idea as Jess Frazelle’s classic `chrome.json`, kept current against Chromium’s documented outer surface.
 3. **Chromium flags** — leave the namespace sandbox on; do **not** pass `--disable-setuid-sandbox` (that only triggers Chromium’s “unsupported flag” infobar and is unnecessary when seccomp allows the namespace sandbox). Under x11docker’s `no-new-privileges`, the setuid helper cannot elevate even if `chromium-sandbox` is installed. Set `CHROMIUM_NO_SANDBOX=1` only if the host lacks unprivileged user namespaces or seccomp cannot be applied.
 4. **Resource limits** — `--limit` (CPU/RAM), `--pids-limit=512`, large `--shm-size` so the browser does not need reckless workarounds.
 5. **Clipboard** — default `c2h` (container → host only) in the launcher.
@@ -131,7 +131,8 @@ Browsers are high-risk software (JS, media codecs, extensions). Running them und
 | `Dockerfile` | Debian trixie + Chromium and GUI helpers |
 | `run-chromium.sh` | In-container Chromium launch (sandbox-aware) |
 | `run-x11docker.sh` | Host launcher with seccomp + hardening flags |
-| `seccomp/chromium.json` | Seccomp profile for Chromium’s namespace sandbox |
+| `seccomp/chromium.json` | Seccomp profile for Chromium’s namespace sandbox (trimmed to used syscalls) |
+| `linux_x86_64_syscalls_chromium_used.md` | Which x86_64 syscalls Chromium needs under an outer filter |
 
 ## Environment variables
 

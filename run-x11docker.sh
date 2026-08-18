@@ -25,9 +25,30 @@ if ! command -v x11docker >/dev/null 2>&1; then
   exit 1
 fi
 
-if [ ! -f "$SECCOMP_PROFILE" ]; then
-  echo "ERROR: seccomp profile not found: $SECCOMP_PROFILE" >&2
-  exit 1
+# Allow disabling custom seccomp for diagnosis:
+#   SECCOMP_PROFILE=unconfined ./run-x11docker.sh --home
+#   SECCOMP=0 ./run-x11docker.sh --home
+DOCKER_SECCOMP_OPT=()
+if [ "${SECCOMP:-1}" = "0" ] || [ "${SECCOMP_PROFILE}" = "unconfined" ] || [ "${SECCOMP_PROFILE}" = "0" ]; then
+  echo "WARNING: running with seccomp=unconfined (diagnosis only)" >&2
+  DOCKER_SECCOMP_OPT=(--security-opt seccomp=unconfined)
+else
+  if [ ! -f "$SECCOMP_PROFILE" ]; then
+    echo "ERROR: seccomp profile not found: $SECCOMP_PROFILE" >&2
+    exit 1
+  fi
+  # x11docker runs PID1 as: env docker-init -- /bin/sh - containerrc
+  # Debian dash uses vfork/fork for every external command. A trimmed profile
+  # without fork/vfork makes containerrc exit instantly → x11docker error
+  # "Did not receive PID of PID1". The image ENTRYPOINT is NOT used here.
+  if ! grep -q '"fork"' "$SECCOMP_PROFILE" || ! grep -q '"vfork"' "$SECCOMP_PROFILE"; then
+    echo "ERROR: seccomp profile is missing fork/vfork: $SECCOMP_PROFILE" >&2
+    echo "  x11docker PID1 is /bin/sh (dash), which needs fork/vfork." >&2
+    echo "  Sync the latest seccomp/chromium.json (commit ce02992+), or run:" >&2
+    echo "    SECCOMP_PROFILE=unconfined ./run-x11docker.sh --home" >&2
+    exit 1
+  fi
+  DOCKER_SECCOMP_OPT=(--security-opt "seccomp=$SECCOMP_PROFILE")
 fi
 
 # Split args at first bare "--" that starts chromium/image options for the user.
@@ -67,7 +88,7 @@ fi
 DOCKER_OPTS=(
   --shm-size="$SHM_SIZE"
   --pids-limit="$PIDS_LIMIT"
-  --security-opt "seccomp=$SECCOMP_PROFILE"
+  "${DOCKER_SECCOMP_OPT[@]}"
 )
 
 # Optional read-only rootfs (extra tmpfs for writable paths Chromium needs).

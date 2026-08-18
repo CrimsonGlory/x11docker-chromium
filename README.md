@@ -144,6 +144,21 @@ If Chromium refuses to start with a sandbox / namespace error, confirm the secco
 CHROMIUM_NO_SANDBOX=1 ./run-x11docker.sh --home
 ```
 
+### “Did not receive PID of PID1”
+
+That almost always means the **outer seccomp profile is missing `fork`/`vfork`**. x11docker does **not** use the image `ENTRYPOINT`; PID1 is `docker-init` → `/bin/sh containerrc`, and Debian dash needs `fork`/`vfork` for every command.
+
+```bash
+grep -E '"fork"|"vfork"' seccomp/chromium.json   # must both match
+./diagnose-startup.sh                            # prints CONTAINERRC_OK or Cannot fork
+```
+
+Rebuild alone does **not** fix this — update/sync `seccomp/chromium.json` on the host. Temporary diagnosis:
+
+```bash
+SECCOMP_PROFILE=unconfined ./run-x11docker.sh --home
+```
+
 ## Why this exists
 
 Browsers are high-risk software (JS, media codecs, extensions). Running them under x11docker gives a deployable, least-privilege GUI sandbox without sharing host display `:0` or using a full VM — and without the usual “just add `--no-sandbox`” footgun.

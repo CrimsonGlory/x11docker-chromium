@@ -11,7 +11,7 @@ ls -la "$SECCOMP_PROFILE"
 grep -E '"fork"|"vfork"' "$SECCOMP_PROFILE" || echo "MISSING fork/vfork"
 
 INIT=""
-for c in /usr/libexec/docker/docker-init /usr/bin/docker-init /usr/bin/tini-static; do
+for c in /usr/bin/catatonit /usr/libexec/docker/docker-init /usr/bin/docker-init /usr/bin/tini-static; do
   [ -x "$c" ] && INIT="$c" && break
 done
 if [ -z "$INIT" ]; then
@@ -48,6 +48,6 @@ set -e
 echo "exit=$rc"
 if [ "$rc" -ne 0 ]; then
   echo
-  echo "If you saw 'Cannot fork', sync seccomp/chromium.json so it includes fork and vfork."
+  echo "If you saw 'Cannot fork' or 'failed to create signalfd', sync seccomp/chromium.json (needs fork/vfork/signalfd/signalfd4)."
 fi
 exit "$rc"

@@ -36,8 +36,8 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | Metric | Value |
 | --- | ---: |
 | Total x86_64 syscalls in header | 373 |
-| used?=true | 246 |
-| used?=false | 127 |
+| used?=true | 248 |
+| used?=false | 125 |
 
 ## Table
 
@@ -325,14 +325,14 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | `move_pages` | 279 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `utimensat` | 280 | true | Browser: timestamps. |
 | `epoll_pwait` | 281 | true | Baseline policy (allowed).; Browser: epoll. |
-| `signalfd` | 282 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `signalfd` | 282 | true | Outer only: x11docker PID1 (catatonit/tini) needs signalfd; Chromium child BPF may still deny. |
 | `timerfd_create` | 283 | true | Browser: timerfd. |
 | `eventfd` | 284 | true | Baseline policy (allowed).; Browser: eventfd. |
 | `fallocate` | 285 | true | GPU process (non-ChromeOS path).; Optional: audio service process (Pulse/pipewire paths, SysV IPC).; Optional: CDM (Widevine / encrypted media) process.; Browser: fallocate. |
 | `timerfd_settime` | 286 | true | Browser: timerfd. |
 | `timerfd_gettime` | 287 | true | Browser: timerfd. |
 | `accept4` | 288 | true | Network process.; Browser: accept4. |
-| `signalfd4` | 289 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `signalfd4` | 289 | true | Outer only: x11docker PID1 (catatonit/tini) needs signalfd4; Chromium child BPF may still deny. |
 | `eventfd2` | 290 | true | Baseline policy (allowed).; Browser: eventfd2. |
 | `epoll_create1` | 291 | true | Baseline policy (allowed).; Browser: epoll. |
 | `dup3` | 292 | true | Baseline policy (allowed).; Browser: dup3. |

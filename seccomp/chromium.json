@@ -299,6 +299,8 @@
         "shmget",
         "shutdown",
         "sigaltstack",
+        "signalfd",
+        "signalfd4",
         "sigprocmask",
         "sigreturn",
         "socketcall",
@@ -532,5 +534,5 @@
       "comment": "Chromium namespace sandbox (user/pid/net ns via unshare/clone/chroot) without CAP_SYS_ADMIN"
     }
   ],
-  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases, clone/clone3/unshare/chroot for the namespace sandbox, and fork/vfork for the Debian chromium shell launcher (outer process only). Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
+  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases, clone/clone3/unshare/chroot for the namespace sandbox, fork/vfork for shell launchers, and signalfd/signalfd4 for x11docker's catatonit/tini init. Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
 }

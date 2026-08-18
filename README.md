@@ -146,11 +146,14 @@ CHROMIUM_NO_SANDBOX=1 ./run-x11docker.sh --home
 
 ### “Did not receive PID of PID1”
 
-That almost always means the **outer seccomp profile is missing `fork`/`vfork`**. x11docker does **not** use the image `ENTRYPOINT`; PID1 is `docker-init` → `/bin/sh containerrc`, and Debian dash needs `fork`/`vfork` for every command.
+That almost always means the **outer seccomp profile is missing syscalls x11docker’s PID1 needs**. x11docker does **not** use the image `ENTRYPOINT`; PID1 is `catatonit`/`tini` → `/bin/sh containerrc`. Required beyond Chromium’s own list:
+
+- `fork` / `vfork` — Debian dash
+- `signalfd` / `signalfd4` — catatonit/tini (`failed to create signalfd: Operation not permitted`)
 
 ```bash
-grep -E '"fork"|"vfork"' seccomp/chromium.json   # must both match
-./diagnose-startup.sh                            # prints CONTAINERRC_OK or Cannot fork
+grep -E '"fork"|"vfork"|"signalfd"' seccomp/chromium.json   # must match
+./diagnose-startup.sh   # prints CONTAINERRC_OK, or Cannot fork / signalfd error
 ```
 
 Rebuild alone does **not** fix this — update/sync `seccomp/chromium.json` on the host. Temporary diagnosis:

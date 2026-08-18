@@ -41,13 +41,15 @@ else
   # Debian dash uses vfork/fork for every external command. A trimmed profile
   # without fork/vfork makes containerrc exit instantly → x11docker error
   # "Did not receive PID of PID1". The image ENTRYPOINT is NOT used here.
-  if ! grep -q '"fork"' "$SECCOMP_PROFILE" || ! grep -q '"vfork"' "$SECCOMP_PROFILE"; then
-    echo "ERROR: seccomp profile is missing fork/vfork: $SECCOMP_PROFILE" >&2
-    echo "  x11docker PID1 is /bin/sh (dash), which needs fork/vfork." >&2
-    echo "  Sync the latest seccomp/chromium.json (commit ce02992+), or run:" >&2
-    echo "    SECCOMP_PROFILE=unconfined ./run-x11docker.sh --home" >&2
-    exit 1
-  fi
+  for need in fork vfork signalfd signalfd4; do
+    if ! grep -q ""$need"" "$SECCOMP_PROFILE"; then
+      echo "ERROR: seccomp profile is missing $need: $SECCOMP_PROFILE" >&2
+      echo "  x11docker PID1 (catatonit/tini + dash) needs fork/vfork/signalfd*." >&2
+      echo "  Sync the latest seccomp/chromium.json, or run:" >&2
+      echo "    SECCOMP_PROFILE=unconfined ./run-x11docker.sh --home" >&2
+      exit 1
+    fi
+  done
   DOCKER_SECCOMP_OPT=(--security-opt "seccomp=$SECCOMP_PROFILE")
 fi
 

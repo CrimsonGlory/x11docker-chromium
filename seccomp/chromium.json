@@ -111,6 +111,7 @@
         "fcntl64",
         "fdatasync",
         "flock",
+        "fork",
         "fstat",
         "fstat64",
         "fstatat64",
@@ -342,6 +343,7 @@
         "utimensat",
         "utimensat_time64",
         "utimes",
+        "vfork",
         "vmsplice",
         "wait4",
         "waitid",
@@ -372,6 +374,71 @@
           "index": 0,
           "value": 40,
           "op": "SCMP_CMP_NE"
+        }
+      ]
+    },
+    {
+      "names": [
+        "personality"
+      ],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 0,
+          "value": 4294967295,
+          "op": "SCMP_CMP_EQ"
+        }
+      ]
+    },
+    {
+      "names": [
+        "personality"
+      ],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 0,
+          "value": 131080,
+          "op": "SCMP_CMP_EQ"
+        }
+      ]
+    },
+    {
+      "names": [
+        "personality"
+      ],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 0,
+          "value": 131072,
+          "op": "SCMP_CMP_EQ"
+        }
+      ]
+    },
+    {
+      "names": [
+        "personality"
+      ],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 0,
+          "value": 8,
+          "op": "SCMP_CMP_EQ"
+        }
+      ]
+    },
+    {
+      "names": [
+        "personality"
+      ],
+      "action": "SCMP_ACT_ALLOW",
+      "args": [
+        {
+          "index": 0,
+          "value": 0,
+          "op": "SCMP_CMP_EQ"
         }
       ]
     },
@@ -465,5 +532,5 @@
       "comment": "Chromium namespace sandbox (user/pid/net ns via unshare/clone/chroot) without CAP_SYS_ADMIN"
     }
   ],
-  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows only syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases of those calls. Also allows clone/clone3/unshare/chroot for Chromium's namespace sandbox without CAP_SYS_ADMIN. Removed used?=false syscalls (fork/vfork, mount/umount, bpf, modules, mq, aio, xattr, etc.). Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
+  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases, clone/clone3/unshare/chroot for the namespace sandbox, and fork/vfork for the Debian chromium shell launcher (outer process only). Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
 }

@@ -36,8 +36,8 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | Metric | Value |
 | --- | ---: |
 | Total x86_64 syscalls in header | 373 |
-| used?=true | 244 |
-| used?=false | 129 |
+| used?=true | 246 |
+| used?=false | 127 |
 
 ## Table
 
@@ -100,8 +100,8 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | `setsockopt` | 54 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Optional: audio service process (Pulse/pipewire paths, SysV IPC).; Browser: setsockopt. |
 | `getsockopt` | 55 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Optional: audio service process (Pulse/pipewire paths, SysV IPC).; Browser: getsockopt. |
 | `clone` | 56 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Browser/zygote: fork/clone children and namespace helpers. |
-| `fork` | 57 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
-| `vfork` | 58 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `fork` | 57 | true | Outer only: Debian `/usr/bin/chromium` is a shell launcher that forks for `uname`/pipelines before exec. Child BPF still denies fork. |
+| `vfork` | 58 | true | Outer only: allow for shell/glibc spawn paths used by the Debian launcher; child BPF still denies vfork. |
 | `execve` | 59 | true | Browser/zygote: launch helpers and re-exec. |
 | `exit` | 60 | true | Baseline policy (allowed).; Browser: thread exit. |
 | `wait4` | 61 | true | Baseline policy (allowed).; Browser/zygote: wait for children. |

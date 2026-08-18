@@ -50,12 +50,15 @@ done
 # Base x11docker options (caller can override/add via args)
 # --network: browser needs outbound network (Docker default bridge)
 # --clipboard=c2h: container→host only (safer than full bidirectional)
-# --limit: cap CPU/RAM to ~50% of free resources
+# --limit: optional CPU/RAM cap (~50% free). Off by default: software
+#          rendering without --gpu is already heavy; enable with LIMIT=1.
 X11DOCKER_BASE=(
   --network
   --clipboard=c2h
-  --limit
 )
+if [ "${LIMIT:-0}" = "1" ]; then
+  X11DOCKER_BASE+=(--limit)
+fi
 
 # Docker run options after x11docker's "--"
 # - seccomp: allow Chromium namespace sandbox without SYS_ADMIN

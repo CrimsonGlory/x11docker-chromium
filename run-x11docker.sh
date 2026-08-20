@@ -10,7 +10,7 @@
 # Usage:
 #   ./run-x11docker.sh [extra x11docker args...] [-- chromium args...]
 #   ./run-x11docker.sh --home --share "$HOME/Downloads"
-#   PULSEAUDIO=0 ./run-x11docker.sh --home     # disable host sound sharing
+#   PULSEAUDIO=0|tcp|socket|host ./run-x11docker.sh --home
 #   CHROMIUM_NO_SANDBOX=1 ./run-x11docker.sh   # emergency fallback only
 set -euo pipefail
 
@@ -74,8 +74,7 @@ done
 # Base x11docker options (caller can override/add via args)
 # --network: browser needs outbound network (Docker default bridge)
 # --clipboard=c2h: container→host only (safer than full bidirectional)
-# --pulseaudio: share host PulseAudio / PipeWire-Pulse (YouTube etc.).
-#               Without this, Chromium falls back to ALSA and finds no card.
+# --pulseaudio[=tcp|socket|host]: share host Pulse / PipeWire-Pulse (below).
 # --limit: optional CPU/RAM cap (~50% free). Off by default: software
 #          rendering without --gpu is already heavy; enable with LIMIT=1.
 X11DOCKER_BASE=(
@@ -86,9 +85,16 @@ if [ "${LIMIT:-0}" = "1" ]; then
   X11DOCKER_BASE+=(--limit)
 fi
 
-# Sound: on by default. Opt out with PULSEAUDIO=0, or pass --alsa / --pipewire
-# yourself (we skip auto --pulseaudio if any sound option is already present).
-want_pulse="${PULSEAUDIO:-1}"
+# Sound: on by default. Chromium talks Pulse (libpulse0), not native PipeWire.
+# On PipeWire-Pulse hosts, x11docker's default --pulseaudio (=socket) often fails
+# because `pactl load-module module-native-protocol-unix` is not reliable there;
+# Chromium then falls back to ALSA and logs "cannot find card '0'".
+# Prefer --pulseaudio=tcp when PipeWire is detected (needs --network, which we set).
+# --pulseaudio=host also works (shares $XDG_RUNTIME_DIR/pulse/native).
+#
+# Override:
+#   PULSEAUDIO=0|tcp|socket|host|1
+# Or pass --pulseaudio=... / --alsa / --pipewire yourself (skips auto).
 has_sound_opt=0
 for a in "${USER_X11DOCKER_ARGS[@]+"${USER_X11DOCKER_ARGS[@]}"}"; do
   case "$a" in
@@ -97,10 +103,32 @@ for a in "${USER_X11DOCKER_ARGS[@]+"${USER_X11DOCKER_ARGS[@]}"}"; do
       ;;
   esac
 done
-if [ "$want_pulse" = "1" ] && [ "$has_sound_opt" -eq 0 ]; then
-  X11DOCKER_BASE+=(--pulseaudio)
-elif [ "$want_pulse" = "0" ] && [ "$has_sound_opt" -eq 0 ]; then
-  : # silence intentionally
+if [ "$has_sound_opt" -eq 0 ]; then
+  pulse_mode="${PULSEAUDIO:-auto}"
+  case "$pulse_mode" in
+    0|no|false|off)
+      pulse_mode=""
+      ;;
+    1|yes|true|on|auto|"")
+      pulse_mode="socket"
+      if command -v pactl >/dev/null 2>&1 \
+        && LC_ALL=C pactl info 2>/dev/null | grep -qi 'PipeWire'; then
+        pulse_mode="tcp"
+      fi
+      ;;
+    tcp|socket|host) ;;
+    *)
+      echo "WARNING: unknown PULSEAUDIO='$pulse_mode' (use 0|1|tcp|socket|host); defaulting to tcp" >&2
+      pulse_mode="tcp"
+      ;;
+  esac
+  if [ -n "$pulse_mode" ]; then
+    if [ "$pulse_mode" = "socket" ]; then
+      X11DOCKER_BASE+=(--pulseaudio)
+    else
+      X11DOCKER_BASE+=("--pulseaudio=$pulse_mode")
+    fi
+  fi
 fi
 
 # Docker run options after x11docker's "--"

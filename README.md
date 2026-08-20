@@ -81,8 +81,11 @@ rendering is not CPU-starved.
 | Force software GL | `CHROMIUM_GPU=0 ./run-x11docker.sh --home` |
 | Cap CPU/RAM (~50%) | `LIMIT=1 ./run-x11docker.sh --home` |
 
-Harmless noise in logs: missing D-Bus, missing ALSA card (use `--pulseaudio`
-for sound), GCM `DEPRECATED_ENDPOINT`.
+Harmless noise in logs: missing D-Bus, GCM `DEPRECATED_ENDPOINT`, Vulkan
+driver warnings without `--gpu`. ALSA `cannot find card '0'` means sound was
+not shared — the launcher enables `--pulseaudio` by default; if you still see
+it, check that PulseAudio or PipeWire-Pulse is running on the host
+(`PULSEAUDIO=0` disables sound sharing).
 
 If the UI opens but **pages never load**, look for
 `Network service crashed or was terminated` — that usually means the outer
@@ -95,16 +98,16 @@ no image rebuild required for seccomp-only fixes.
 | Goal | How |
 |------|-----|
 | GPU acceleration | `./run-x11docker.sh --gpu --home` |
-| Sound | `./run-x11docker.sh --pulseaudio --home` (image includes `libpulse0`) |
+| Sound | on by default via `--pulseaudio` (needs host Pulse/PipeWire-Pulse); opt out: `PULSEAUDIO=0` |
 | Webcam | `./run-x11docker.sh --webcam --home` |
 | Read-only rootfs | `READ_ONLY=1 ./run-x11docker.sh --home` |
 | Extra Chromium args / URL | `./run-x11docker.sh --home -- https://example.com` |
 | Emergency: disable Chromium sandbox | `CHROMIUM_NO_SANDBOX=1 ./run-x11docker.sh` (weaker; avoid) |
 
-Example with GPU and sound:
+Example with GPU (sound is already on by default):
 
 ```bash
-./run-x11docker.sh --gpu --pulseaudio --home --share "$HOME/Downloads"
+./run-x11docker.sh --gpu --home --share "$HOME/Downloads"
 ```
 
 ### Podman

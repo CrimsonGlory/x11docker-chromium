@@ -10,6 +10,7 @@
 # Usage:
 #   ./run-x11docker.sh [extra x11docker args...] [-- chromium args...]
 #   ./run-x11docker.sh --home --share "$HOME/Downloads"
+#   PULSEAUDIO=0 ./run-x11docker.sh --home     # disable host sound sharing
 #   CHROMIUM_NO_SANDBOX=1 ./run-x11docker.sh   # emergency fallback only
 set -euo pipefail
 
@@ -73,6 +74,8 @@ done
 # Base x11docker options (caller can override/add via args)
 # --network: browser needs outbound network (Docker default bridge)
 # --clipboard=c2h: container→host only (safer than full bidirectional)
+# --pulseaudio: share host PulseAudio / PipeWire-Pulse (YouTube etc.).
+#               Without this, Chromium falls back to ALSA and finds no card.
 # --limit: optional CPU/RAM cap (~50% free). Off by default: software
 #          rendering without --gpu is already heavy; enable with LIMIT=1.
 X11DOCKER_BASE=(
@@ -81,6 +84,23 @@ X11DOCKER_BASE=(
 )
 if [ "${LIMIT:-0}" = "1" ]; then
   X11DOCKER_BASE+=(--limit)
+fi
+
+# Sound: on by default. Opt out with PULSEAUDIO=0, or pass --alsa / --pipewire
+# yourself (we skip auto --pulseaudio if any sound option is already present).
+want_pulse="${PULSEAUDIO:-1}"
+has_sound_opt=0
+for a in "${USER_X11DOCKER_ARGS[@]+"${USER_X11DOCKER_ARGS[@]}"}"; do
+  case "$a" in
+    --pulseaudio|--pulseaudio=*|--alsa|--alsa=*|--pipewire|--pipewire=*)
+      has_sound_opt=1
+      ;;
+  esac
+done
+if [ "$want_pulse" = "1" ] && [ "$has_sound_opt" -eq 0 ]; then
+  X11DOCKER_BASE+=(--pulseaudio)
+elif [ "$want_pulse" = "0" ] && [ "$has_sound_opt" -eq 0 ]; then
+  : # silence intentionally
 fi
 
 # Docker run options after x11docker's "--"

@@ -84,10 +84,11 @@ rendering is not CPU-starved.
 Harmless noise in logs: missing D-Bus, GCM `DEPRECATED_ENDPOINT`, Vulkan
 driver warnings without `--gpu`.
 
-If YouTube has **no sound** and you see ALSA `cannot find card '0'`, Pulse never
-reached Chromium. On **PipeWire-Pulse** hosts, plain `--pulseaudio` (socket mode)
-often fails; the launcher auto-selects `--pulseaudio=tcp` when `pactl info`
-mentions PipeWire. Manual overrides: `PULSEAUDIO=tcp|host|socket|0`.
+If YouTube has **no sound** and you see ALSA `cannot find card '0'`, or x11docker
+notes `pactl failed ... No such entity` / disables `--pulseaudio`, socket mode
+failed (common on **PipeWire-Pulse**). The launcher defaults to
+`--pulseaudio=tcp`. You should see `x11docker-chromium: enabling --pulseaudio=tcp`
+at startup. Overrides: `PULSEAUDIO=host|socket|0`.
 
 If the UI opens but **pages never load**, look for
 `Network service crashed or was terminated` — that usually means the outer
@@ -100,7 +101,7 @@ no image rebuild required for seccomp-only fixes.
 | Goal | How |
 |------|-----|
 | GPU acceleration | `./run-x11docker.sh --gpu --home` |
-| Sound | on by default (`tcp` on PipeWire, else socket); override with `PULSEAUDIO=tcp` / `host` / `socket` / `0` |
+| Sound | on by default as `--pulseaudio=tcp`; override with `PULSEAUDIO=host` / `socket` / `0` |
 | Webcam | `./run-x11docker.sh --webcam --home` |
 | Read-only rootfs | `READ_ONLY=1 ./run-x11docker.sh --home` |
 | Extra Chromium args / URL | `./run-x11docker.sh --home -- https://example.com` |

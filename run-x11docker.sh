@@ -85,15 +85,14 @@ if [ "${LIMIT:-0}" = "1" ]; then
   X11DOCKER_BASE+=(--limit)
 fi
 
-# Sound: on by default. Chromium talks Pulse (libpulse0), not native PipeWire.
-# On PipeWire-Pulse hosts, x11docker's default --pulseaudio (=socket) often fails
-# because `pactl load-module module-native-protocol-unix` is not reliable there;
-# Chromium then falls back to ALSA and logs "cannot find card '0'".
-# Prefer --pulseaudio=tcp when PipeWire is detected (needs --network, which we set).
-# --pulseaudio=host also works (shares $XDG_RUNTIME_DIR/pulse/native).
+# Sound: on by default as --pulseaudio=tcp (needs --network, which we set).
+# Chromium talks Pulse (libpulse0), not native PipeWire. On PipeWire-Pulse,
+# x11docker's socket mode runs `pactl load-module module-native-protocol-unix`
+# and often gets "Failure: No such entity", then disables Pulse entirely —
+# Chromium falls back to ALSA ("cannot find card '0'"). TCP mode works with
+# both classic PulseAudio and PipeWire-Pulse; --pulseaudio=host also works.
 #
-# Override:
-#   PULSEAUDIO=0|tcp|socket|host|1
+# Override: PULSEAUDIO=0|tcp|socket|host|1
 # Or pass --pulseaudio=... / --alsa / --pipewire yourself (skips auto).
 has_sound_opt=0
 for a in "${USER_X11DOCKER_ARGS[@]+"${USER_X11DOCKER_ARGS[@]}"}"; do
@@ -104,25 +103,23 @@ for a in "${USER_X11DOCKER_ARGS[@]+"${USER_X11DOCKER_ARGS[@]}"}"; do
   esac
 done
 if [ "$has_sound_opt" -eq 0 ]; then
-  pulse_mode="${PULSEAUDIO:-auto}"
+  pulse_mode="${PULSEAUDIO:-tcp}"
   case "$pulse_mode" in
     0|no|false|off)
       pulse_mode=""
       ;;
-    1|yes|true|on|auto|"")
-      pulse_mode="socket"
-      if command -v pactl >/dev/null 2>&1 \
-        && LC_ALL=C pactl info 2>/dev/null | grep -qi 'PipeWire'; then
-        pulse_mode="tcp"
-      fi
+    1|yes|true|on|auto)
+      # Always tcp: socket mode is broken on many PipeWire hosts.
+      pulse_mode="tcp"
       ;;
     tcp|socket|host) ;;
     *)
-      echo "WARNING: unknown PULSEAUDIO='$pulse_mode' (use 0|1|tcp|socket|host); defaulting to tcp" >&2
+      echo "WARNING: unknown PULSEAUDIO='$pulse_mode' (use 0|1|tcp|socket|host); using tcp" >&2
       pulse_mode="tcp"
       ;;
   esac
   if [ -n "$pulse_mode" ]; then
+    echo "x11docker-chromium: enabling --pulseaudio=$pulse_mode" >&2
     if [ "$pulse_mode" = "socket" ]; then
       X11DOCKER_BASE+=(--pulseaudio)
     else

@@ -156,9 +156,15 @@ if [ "${CHROMIUM_NO_SANDBOX:-0}" = "1" ]; then
   ENV_OPTS+=(-e CHROMIUM_NO_SANDBOX=1)
 fi
 
-if [ "${KEYBOARD_LAYOUT:-}" != "" ]; then
-  ENV_OPTS+=(-e "KEYBOARD_LAYOUT=$KEYBOARD_LAYOUT")
+# Auto-detect host keyboard layout (Debian/Ubuntu /etc/default/keyboard).
+# Override with KEYBOARD_LAYOUT=xx ./run-x11docker.sh if needed.
+if [ -z "${KEYBOARD_LAYOUT:-}" ] && [ -f /etc/default/keyboard ]; then
+  KEYBOARD_LAYOUT=$(grep "XKBLAYOUT" /etc/default/keyboard | sed "s/XKBLAYOUT=//g" | tr -d '"')
 fi
+: "${KEYBOARD_LAYOUT:=us}"
+: "${XKB_OPTIONS:=lv3:ralt_switch}"
+ENV_OPTS+=(-e "KEYBOARD_LAYOUT=$KEYBOARD_LAYOUT")
+ENV_OPTS+=(-e "XKB_OPTIONS=$XKB_OPTIONS")
 
 if [ "${DEBUG:-0}" = "1" ]; then
   set -x

@@ -53,11 +53,13 @@ x11docker --network -- \
 
 ### Keyboard layout
 
-If AltGr / non-US layout matters, pass your host layout (same pattern as x11docker-cursor):
+`run-x11docker.sh` auto-detects the host layout from `/etc/default/keyboard`
+(`XKBLAYOUT`) and passes it into the container for `setxkbmap`. Override if
+needed:
 
 ```bash
-KEYBOARD_LAYOUT=$(grep XKBLAYOUT /etc/default/keyboard | sed 's/XKBLAYOUT=//g' | tr -d '"') \
-  ./run-x11docker.sh --home
+KEYBOARD_LAYOUT=de ./run-x11docker.sh --home
+# optional: XKB_OPTIONS=lv3:ralt_switch (default)
 ```
 
 ### Performance / lag
@@ -197,7 +199,8 @@ Browsers are high-risk software (JS, media codecs, extensions). Running them und
 | `CHROMIUM_DISABLE_DEV_SHM` | `0` | `1` forces `--disable-dev-shm-usage` (disk-backed shmem) |
 | `CHROMIUM_BIN` | `/usr/lib/chromium/chromium` | Override Chromium ELF path (avoid Debian shell wrapper) |
 | `CHROMIUM_USER_DATA_DIR` | `$HOME/.config/chromium` | Profile directory |
-| `KEYBOARD_LAYOUT` | `us` | `setxkbmap` layout |
+| `KEYBOARD_LAYOUT` | host `XKBLAYOUT` or `us` | `setxkbmap` layout (auto-detected) |
+| `XKB_OPTIONS` | `lv3:ralt_switch` | `setxkbmap -option` value |
 | `SECCOMP_PROFILE` | `./seccomp/chromium.json` | Override seccomp path |
 | `X11DOCKER_CHROMIUM_IMAGE` | `chromium` | Image name |
 | `SHM_SIZE` | `1g` | Docker `/dev/shm` size |

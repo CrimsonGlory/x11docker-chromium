@@ -89,6 +89,7 @@
         "epoll_create1",
         "epoll_ctl",
         "epoll_pwait",
+        "epoll_pwait2",
         "epoll_wait",
         "eventfd",
         "eventfd2",
@@ -122,6 +123,7 @@
         "ftruncate64",
         "futex",
         "futex_time64",
+        "futex_waitv",
         "get_mempolicy",
         "get_robust_list",
         "get_thread_area",
@@ -215,12 +217,15 @@
         "prctl",
         "pread64",
         "preadv",
+        "preadv2",
         "prlimit64",
         "pselect6",
         "pselect6_time64",
         "pwrite64",
         "pwritev",
+        "pwritev2",
         "read",
+        "readahead",
         "readlink",
         "readlinkat",
         "readv",
@@ -534,5 +539,5 @@
       "comment": "Chromium namespace sandbox (user/pid/net ns via unshare/clone/chroot) without CAP_SYS_ADMIN"
     }
   ],
-  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases, clone/clone3/unshare/chroot for the namespace sandbox, fork/vfork for shell launchers, and signalfd/signalfd4 for x11docker's catatonit/tini init. Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
+  "comment": "Docker/moby default seccomp profile trimmed for Chromium with Chrome sandbox enabled. Allows syscalls justified by linux_x86_64_syscalls_chromium_used.md (used?=true), plus multi-arch/compat aliases; clone/clone3/unshare/chroot for the namespace sandbox; fork/vfork for shell launchers; signalfd/signalfd4 for x11docker catatonit/tini; and preadv2/pwritev2/epoll_pwait2/futex_waitv/readahead for network-service I/O (static BPF analysis missed these glibc/runtime paths). Prefer this over --no-sandbox or --cap-add=SYS_ADMIN."
 }

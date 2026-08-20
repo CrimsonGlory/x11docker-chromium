@@ -36,8 +36,8 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | Metric | Value |
 | --- | ---: |
 | Total x86_64 syscalls in header | 373 |
-| used?=true | 248 |
-| used?=false | 125 |
+| used?=true | 253 |
+| used?=false | 120 |
 
 ## Table
 
@@ -230,7 +230,7 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | `tuxcall` | 184 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `security` | 185 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `gettid` | 186 | true | Baseline policy (allowed).; Browser: gettid. |
-| `readahead` | 187 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `readahead` | 187 | true | Outer runtime: POSIX_FADV / readahead for network/cache paths. Static BPF table had used?=false. |
 | `setxattr` | 188 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `lsetxattr` | 189 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `fsetxattr` | 190 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
@@ -370,8 +370,8 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | `membarrier` | 324 | true | Optional: on-device translation process.; Browser: membarrier (threading/rseq registration). |
 | `mlock2` | 325 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `copy_file_range` | 326 | true | Browser: efficient file copy if available. |
-| `preadv2` | 327 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
-| `pwritev2` | 328 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `preadv2` | 327 | true | Outer runtime: Network/glibc modern vectored I/O; blocking crashes network service. Static BPF table had used?=false. |
+| `pwritev2` | 328 | true | Outer runtime: Network/glibc modern vectored I/O; blocking crashes network service. Static BPF table had used?=false. |
 | `pkey_mprotect` | 329 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Browser/V8 PKU if enabled. |
 | `pkey_alloc` | 330 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Browser/V8 PKU if enabled. |
 | `pkey_free` | 331 | true | Baseline/BPFBase (allowed or arg-restricted allow).; Browser/V8 PKU if enabled. |
@@ -395,14 +395,14 @@ This table lists every Linux **x86_64** system call from Chromium’s in-tree he
 | `pidfd_getfd` | 438 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `faccessat2` | 439 | true | Syscall broker (file access helper for sandboxed children).; Browser: faccessat2. |
 | `process_madvise` | 440 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
-| `epoll_pwait2` | 441 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `epoll_pwait2` | 441 | true | Outer runtime: Modern event loop; glibc/Chromium may prefer over epoll_pwait. Static BPF table had used?=false. |
 | `mount_setattr` | 442 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `landlock_create_ruleset` | 444 | true | Optional Landlock GPU/path restrictions (sandbox wrappers). |
 | `landlock_add_rule` | 445 | true | Optional Landlock GPU/path restrictions. |
 | `landlock_restrict_self` | 446 | true | Optional Landlock GPU/path restrictions. |
 | `memfd_secret` | 447 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `process_mrelease` | 448 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
-| `futex_waitv` | 449 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
+| `futex_waitv` | 449 | true | Outer runtime: Modern futex wait; used by threading in recent glibc/Chromium. Static BPF table had used?=false. |
 | `set_mempolicy_home_node` | 450 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `cachestat` | 451 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |
 | `fchmodat2` | 452 | false | Not allowed by baseline/core desktop policies and not in browser/zygote setup allowlist (static analysis). |

@@ -81,8 +81,14 @@ rendering is not CPU-starved.
 | Force software GL | `CHROMIUM_GPU=0 ./run-x11docker.sh --home` |
 | Cap CPU/RAM (~50%) | `LIMIT=1 ./run-x11docker.sh --home` |
 
-Harmless noise in logs (not the lag): missing D-Bus, missing ALSA card (use
-`--pulseaudio` for sound), GCM `DEPRECATED_ENDPOINT`.
+Harmless noise in logs: missing D-Bus, missing ALSA card (use `--pulseaudio`
+for sound), GCM `DEPRECATED_ENDPOINT`.
+
+If the UI opens but **pages never load**, look for
+`Network service crashed or was terminated` — that usually means the outer
+seccomp profile is still missing a runtime I/O syscall (see
+`preadv2`/`pwritev2` in `seccomp/chromium.json`). Sync the latest profile;
+no image rebuild required for seccomp-only fixes.
 
 ### Optional features
 

@@ -90,7 +90,7 @@ fi
 # Shared memory
 # -------------
 # Docker's default /dev/shm is 64MiB and crashes Chromium; run-x11docker.sh
-# raises it with --shm-size=1g. Trust that by default. Force disk-backed
+# raises it with --shm-size=3g. Trust that by default. Force disk-backed
 # shmem only when explicitly requested (do not `df|awk` here — pipes need fork).
 SHM_FLAGS=()
 if [ "${CHROMIUM_DISABLE_DEV_SHM:-0}" = "1" ]; then

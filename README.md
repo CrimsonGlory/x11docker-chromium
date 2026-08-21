@@ -32,8 +32,8 @@ Equivalents without the helper script:
 x11docker --network --clipboard=c2h --home \
   --share "$HOME/Downloads" \
   -- \
-  --shm-size=1g \
-  --pids-limit=512 \
+  --shm-size=3g \
+  --pids-limit=4096 \
   --security-opt seccomp=$(pwd)/seccomp/chromium.json \
   -- chromium
 ```
@@ -46,7 +46,7 @@ x11docker --network --clipboard=c2h --home \
 ./run-x11docker.sh
 # or
 x11docker --network -- \
-  --shm-size=1g \
+  --shm-size=3g \
   --security-opt seccomp=$(pwd)/seccomp/chromium.json \
   -- chromium
 ```
@@ -71,7 +71,7 @@ in a loop, and feels very laggy. The entrypoint detects `/dev/dri` and:
 - **no DRI** → `--disable-gpu` / software compositing (stops the crash loop)
 - **with DRI** (`x11docker --gpu`) → hardware GL + `--ignore-gpu-blocklist`
 
-Also prefer a large `--shm-size` (the launcher defaults to `1g`) so Chromium can
+Also prefer a large `--shm-size` (the launcher defaults to `3g`) so Chromium can
 use `/dev/shm` instead of slow disk-backed shared memory. Resource capping with
 x11docker `--limit` is **off by default** (enable with `LIMIT=1`) so software
 rendering is not CPU-starved.
@@ -84,7 +84,20 @@ rendering is not CPU-starved.
 | Cap CPU/RAM (~50%) | `LIMIT=1 ./run-x11docker.sh --home` |
 
 Harmless noise in logs: missing D-Bus, GCM `DEPRECATED_ENDPOINT`, Vulkan
-driver warnings without `--gpu`.
+driver warnings without `--gpu`, `Failed to load cookie file from cookie`
+(xclip), and WebRTC STUN `errorcode: -105` when a site cannot reach
+`stun.l.google.com` / Cloudflare STUN.
+
+If **incognito starts failing after a few hours** while normal tabs still
+work, look for `pthread_create: Resource temporarily unavailable (11)`.
+Docker `--pids-limit` is cgroup `pids.max` and counts **threads**. Chromium
+site isolation already uses many; an incognito window cannot reuse the
+regular profile’s renderer processes, so it hits the cap first. Restart the
+container, or raise the limit (default is now 4096):
+
+```bash
+PIDS_LIMIT=8192 ./run-x11docker.sh --home
+```
 
 If YouTube has **no sound** and you see ALSA `cannot find card '0'`, or x11docker
 notes `pactl failed ... No such entity` / disables `--pulseaudio`, socket mode
@@ -120,8 +133,8 @@ Example with GPU (sound is already on by default):
 ```bash
 x11docker --backend=podman --network --clipboard=c2h --home \
   -- \
-  --shm-size=1g \
-  --pids-limit=512 \
+  --shm-size=3g \
+  --pids-limit=4096 \
   --security-opt seccomp=$(pwd)/seccomp/chromium.json \
   -- chromium
 ```
@@ -142,7 +155,7 @@ x11docker --backend=podman --network --clipboard=c2h --home \
 1. **x11docker isolation** — nested X server, unprivileged host-mapped user, `--cap-drop=ALL`, `--security-opt=no-new-privileges`.
 2. **Custom seccomp** (`seccomp/chromium.json`) — Docker’s default seccomp blocks the `clone`/`unshare` patterns Chromium needs for its **namespace sandbox**. This profile starts from the moby default, allows those sandbox syscalls **without** granting `CAP_SYS_ADMIN`, and is further trimmed so only syscalls justified by `linux_x86_64_syscalls_chromium_used.md` (`used?=true`) remain allowed (plus multi-arch/compat aliases). That is the same idea as Jess Frazelle’s classic `chrome.json`, kept current against Chromium’s documented outer surface.
 3. **Chromium flags** — leave the namespace sandbox on; do **not** pass `--disable-setuid-sandbox` (that only triggers Chromium’s “unsupported flag” infobar and is unnecessary when seccomp allows the namespace sandbox). Under x11docker’s `no-new-privileges`, the setuid helper cannot elevate even if `chromium-sandbox` is installed. Set `CHROMIUM_NO_SANDBOX=1` only if the host lacks unprivileged user namespaces or seccomp cannot be applied.
-4. **Resource limits** — `--pids-limit=512`, large `--shm-size` (default `1g`). Optional x11docker CPU/RAM cap via `LIMIT=1`.
+4. **Resource limits** — `--pids-limit=4096` (cgroup `pids.max` counts threads, not just processes; 512 is too low for Chromium site isolation + incognito), large `--shm-size` (default `3g`). Optional x11docker CPU/RAM cap via `LIMIT=1`.
 5. **Clipboard** — default `c2h` (container → host only) in the launcher.
 6. **Optional read-only rootfs** — `READ_ONLY=1` adds `--read-only` plus `noexec` tmpfs mounts (pair with `--home`).
 
@@ -203,8 +216,8 @@ Browsers are high-risk software (JS, media codecs, extensions). Running them und
 | `XKB_OPTIONS` | `lv3:ralt_switch` | `setxkbmap -option` value |
 | `SECCOMP_PROFILE` | `./seccomp/chromium.json` | Override seccomp path |
 | `X11DOCKER_CHROMIUM_IMAGE` | `chromium` | Image name |
-| `SHM_SIZE` | `1g` | Docker `/dev/shm` size |
-| `PIDS_LIMIT` | `512` | Max processes in the container |
+| `SHM_SIZE` | `3g` | Docker `/dev/shm` size |
+| `PIDS_LIMIT` | `4096` | Max tasks (processes+threads) in the container |
 | `LIMIT` | `0` | `1` enables x11docker `--limit` (CPU/RAM ~50%) |
 | `READ_ONLY` | `0` | `1` enables read-only root + tmpfs |
 | `DEBUG` | `0` | `1` traces the launcher |

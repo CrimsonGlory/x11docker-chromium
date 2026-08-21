@@ -34,7 +34,7 @@ EOF
 echo "== docker run (x11docker-like) =="
 set +e
 docker run --rm \
-  --shm-size=1g --pids-limit=512 \
+  --shm-size=3g --pids-limit=4096 \
   --security-opt "seccomp=$SECCOMP_PROFILE" \
   --security-opt no-new-privileges \
   --cap-drop ALL \

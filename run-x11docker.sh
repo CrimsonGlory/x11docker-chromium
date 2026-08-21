@@ -17,8 +17,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SECCOMP_PROFILE="${SECCOMP_PROFILE:-$SCRIPT_DIR/seccomp/chromium.json}"
 IMAGE="${X11DOCKER_CHROMIUM_IMAGE:-chromium}"
-SHM_SIZE="${SHM_SIZE:-1g}"
-PIDS_LIMIT="${PIDS_LIMIT:-512}"
+SHM_SIZE="${SHM_SIZE:-3g}"
+# 512 is too low: Docker pids.max counts *threads* (not processes). Chromium
+# site isolation plus an incognito session easily exceeds that after a few
+# hours (pthread_create EAGAIN). 4096 still caps fork bombs.
+PIDS_LIMIT="${PIDS_LIMIT:-4096}"
 
 if ! command -v x11docker >/dev/null 2>&1; then
   echo "ERROR: x11docker not found in PATH" >&2
@@ -130,7 +133,7 @@ fi
 
 # Docker run options after x11docker's "--"
 # - seccomp: allow Chromium namespace sandbox without SYS_ADMIN
-# - pids-limit: mitigate fork bombs
+# - pids-limit: mitigate fork bombs (cgroup pids.max counts threads)
 # - shm-size: Chromium needs more than Docker's 64MiB default
 DOCKER_OPTS=(
   --shm-size="$SHM_SIZE"

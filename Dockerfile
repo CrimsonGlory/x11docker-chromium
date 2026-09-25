@@ -1,3 +1,13 @@
+FROM debian:trixie-slim AS filechooser-mod
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc libc6-dev \
+    && rm -rf /var/lib/apt/lists/*
+COPY gtk-modules/chromium-filechooser-default.c /tmp/chromium-filechooser-default.c
+RUN gcc -shared -fPIC -o /tmp/libchromium-filechooser-default.so \
+      /tmp/chromium-filechooser-default.c -ldl \
+    && strip --strip-unneeded /tmp/libchromium-filechooser-default.so
+
 FROM debian:trixie-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -31,8 +41,11 @@ RUN apt-get update \
     || true \
     && rm -rf /var/lib/apt/lists/*
 
+COPY --from=filechooser-mod /tmp/libchromium-filechooser-default.so \
+    /usr/local/lib/libchromium-filechooser-default.so
 COPY run-chromium.sh /usr/local/bin/run-chromium.sh
-RUN chmod 0755 /usr/local/bin/run-chromium.sh
+RUN chmod 0755 /usr/local/bin/run-chromium.sh \
+    /usr/local/lib/libchromium-filechooser-default.so
 
 # Do not set USER: x11docker creates a host-like unprivileged user.
 # ENTRYPOINT so extra args (URLs, flags) are passed to Chromium, not replace CMD.

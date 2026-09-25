@@ -14,6 +14,23 @@ if [ -n "${DISPLAY:-}" ] && command -v setxkbmap >/dev/null 2>&1; then
   setxkbmap -layout "$KEYBOARD_LAYOUT" -option "$XKB_OPTIONS" 2>/dev/null || true
 fi
 
+# File-chooser default button
+# ---------------------------
+# Chromium 140+ (Jan 2026, crbug 470928605) sets the GTK file-chooser default
+# to Cancel so a held Enter cannot confirm a page-preselected file. GtkFileChooser
+# also activates that default on double-click and Enter, so both cancel the
+# dialog; only a mouse click on Open works. LD_PRELOAD restores Open as default.
+# Disable with CHROMIUM_FILE_DIALOG_DEFAULT=cancel to keep Chromium's behavior.
+FILECHOOSER_PRELOAD="${FILECHOOSER_PRELOAD:-/usr/local/lib/libchromium-filechooser-default.so}"
+case "${CHROMIUM_FILE_DIALOG_DEFAULT:-open}" in
+  cancel|0|off|no|false) ;;
+  *)
+    if [ -f "$FILECHOOSER_PRELOAD" ]; then
+      export LD_PRELOAD="$FILECHOOSER_PRELOAD${LD_PRELOAD:+:$LD_PRELOAD}"
+    fi
+    ;;
+esac
+
 # Prefer a writable user data dir under HOME (works with x11docker --home)
 USER_DATA_DIR="${CHROMIUM_USER_DATA_DIR:-$HOME/.config/chromium}"
 mkdir -p "$USER_DATA_DIR" "$HOME/Downloads" \

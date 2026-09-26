@@ -88,19 +88,6 @@ driver warnings without `--gpu`, `Failed to load cookie file from cookie`
 (xclip), and WebRTC STUN `errorcode: -105` when a site cannot reach
 `stun.l.google.com` / Cloudflare STUN.
 
-If **file upload / Open File dialogs cancel on Enter or double-click** and
-only a mouse click on **Open** works, that is Chromium, not the window
-manager. Since 140 (Jan 2026, [crbug 470928605](https://issues.chromium.org/issues/470928605))
-the GTK picker uses **Cancel as the default button** so a held Enter cannot
-confirm a file a page pre-selected. GtkFileChooser also fires that default
-on double-click, so both actions hit Cancel. The image LD_PRELOADs
-`libchromium-filechooser-default.so` to put **Open** back as the default.
-Keep Chromium's Cancel default with:
-
-```bash
-CHROMIUM_FILE_DIALOG_DEFAULT=cancel ./run-x11docker.sh --home
-```
-
 If **incognito starts failing after a few hours** while normal tabs still
 work, look for `pthread_create: Resource temporarily unavailable (11)`.
 Docker `--pids-limit` is cgroup `pids.max` and counts **threads**. Chromium
@@ -210,10 +197,9 @@ Browsers are high-risk software (JS, media codecs, extensions). Running them und
 
 | File | Role |
 |------|------|
-| `Dockerfile` | Debian trixie + Chromium, GUI helpers, file-dialog LD_PRELOAD |
+| `Dockerfile` | Debian trixie + Chromium and GUI helpers |
 | `run-chromium.sh` | In-container Chromium launch (sandbox-aware) |
 | `run-x11docker.sh` | Host launcher with seccomp + hardening flags |
-| `gtk-modules/chromium-filechooser-default.c` | LD_PRELOAD: restore Open as GTK file-dialog default |
 | `seccomp/chromium.json` | Seccomp profile for Chromium’s namespace sandbox (trimmed to used syscalls) |
 | `linux_x86_64_syscalls_chromium_used.md` | Which x86_64 syscalls Chromium needs under an outer filter |
 
@@ -226,7 +212,6 @@ Browsers are high-risk software (JS, media codecs, extensions). Running them und
 | `CHROMIUM_DISABLE_DEV_SHM` | `0` | `1` forces `--disable-dev-shm-usage` (disk-backed shmem) |
 | `CHROMIUM_BIN` | `/usr/lib/chromium/chromium` | Override Chromium ELF path (avoid Debian shell wrapper) |
 | `CHROMIUM_USER_DATA_DIR` | `$HOME/.config/chromium` | Profile directory |
-| `CHROMIUM_FILE_DIALOG_DEFAULT` | `open` | `open` restores Open as the GTK file-dialog default (Enter / double-click); `cancel` keeps Chromium's Cancel default |
 | `KEYBOARD_LAYOUT` | host `XKBLAYOUT` or `us` | `setxkbmap` layout (auto-detected) |
 | `XKB_OPTIONS` | `lv3:ralt_switch` | `setxkbmap -option` value |
 | `SECCOMP_PROFILE` | `./seccomp/chromium.json` | Override seccomp path |

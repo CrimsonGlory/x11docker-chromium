@@ -158,9 +158,6 @@ ENV_OPTS=()
 if [ "${CHROMIUM_NO_SANDBOX:-0}" = "1" ]; then
   ENV_OPTS+=(-e CHROMIUM_NO_SANDBOX=1)
 fi
-if [ -n "${CHROMIUM_FILE_DIALOG_DEFAULT:-}" ]; then
-  ENV_OPTS+=(-e "CHROMIUM_FILE_DIALOG_DEFAULT=$CHROMIUM_FILE_DIALOG_DEFAULT")
-fi
 
 # Auto-detect host keyboard layout (Debian/Ubuntu /etc/default/keyboard).
 # Override with KEYBOARD_LAYOUT=xx ./run-x11docker.sh if needed.
